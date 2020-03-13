@@ -5,6 +5,33 @@
 #/html/body/section[1]/div[5]/div[2] for total cases
 
 
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+import selenium
+
+import time
+import threading
+
+
+def scraper():
+    options = selenium.webdriver.FirefoxOptions()
+    driver = selenium.webdriver.Firefox(executable_path=
+        r'/Users/keithlee/Documents/Python/Selenium/geckodriver')
+    
+    driver.get('https://covid19japan.com')
+
+    while True:
+        try:
+            findCases = driver.find_element_by_xpath('/html/body/section[1]/div[5]/div[2]')
+            casesToday = findCases.text
+            
+            if casesToday:
+                driver.close()
+                return int(casesToday)
+        except selenium.common.exceptions.NoSuchElementException:
+            continue
+    
+
 def averageFromIndex(days: int, dataSource: list, startIndex: int):
     endIndex = startIndex + days
     total = 0
@@ -79,8 +106,14 @@ def displaySmoothedData(dataSource: list, smoothedBy: int):
 
 
 # starting Feb 16 as daily reports from that date
+# to save to text file and read from it
+
 confirmedCases = [52, 64, 74, 84, 92, 107, 133, 147, 159, 171, 189, 214, 231,
                   240, 257, 276, 289, 329, 342, 396, 463, 499, 518, 575, 627,
                   677]
 
+todaysNewCase = scraper()
+confirmedCases.append(todaysNewCase)
+
 displaySmoothedData(dataSource = confirmedCases, smoothedBy = 5)
+
